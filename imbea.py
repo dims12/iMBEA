@@ -1,3 +1,5 @@
+# https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-15-110
+
 import bisect
 
 
@@ -12,7 +14,9 @@ def biclique_find(G):
     P = list(set(P))
     NHS = [neighborhood_size(G, v) for v in P]
 
-    P, NHS = []
+    P, NHS = zip(*[(p, nhs) for nhs, p in sorted(zip(NHS, P))])
+    P = list(P)
+    NHS = list(NHS)
 
     Q = []
 
@@ -30,16 +34,18 @@ def biclique_find_core(G, L, R, P, NHS, Q):
     :return:
     """
 
-    i = 0
+    pass
     while len(P) > 0:
 
-        x = P[i]
-        i += 1
+        x = P.pop(0)
+        NHS.pop(0)
+
         R1 = R + [x]
         L1 = [u for u in L if (u, x) in G]
         L1_bar = [u for u in L if u not in L1]
 
         C = [x]
+        dI = []
         P1 = []
         NHS1 = []
         Q1 = []
@@ -56,24 +62,24 @@ def biclique_find_core(G, L, R, P, NHS, Q):
 
         if is_maximal:
 
-            for v, nhs in zip(P, NHS):
-                if v != x:
-                    N_v = [u for u in L1 if (u, v) in G]
+            for i, (v, nhs) in enumerate(zip(P, NHS)):
+                N_v = [u for u in L1 if (u, v) in G]
 
-                    if len(N_v) == len(L1):
+                if len(N_v) == len(L1):
 
-                        R1 = R1 + [v]
+                    R1 = R1 + [v]
 
-                        S = [u for u in L1_bar if (u, v) in G]
+                    S = [u for u in L1_bar if (u, v) in G]
 
-                        if len(S) == 0:
-                            C = C + [v]
+                    if len(S) == 0:
+                        C = C + [v]
+                        dI = dI + [i]
 
-                    elif len(N_v) > 0:
+                elif len(N_v) > 0:
 
-                        i = bisect.bisect_right(NHS1, nhs)
-                        NHS1 = NHS1[:i] + [nhs] + NHS1[i:]
-                        P1 = P1[:i] + [v] + P1[i:]
+                    j = bisect.bisect_right(NHS1, nhs)
+                    NHS1 = NHS1[:j] + [nhs] + NHS1[j:]
+                    P1 = P1[:j] + [v] + P1[j:]
 
             yield L1, R1
 
@@ -84,3 +90,4 @@ def biclique_find_core(G, L, R, P, NHS, Q):
 
         Q = Q + C
         P = [v for v in P if v not in C]
+        NHS = [nhs for i, nhs in enumerate(NHS) if i not in dI]
