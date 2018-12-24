@@ -1,13 +1,20 @@
 # https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-15-110
+# variable names are as in paper
 
 import bisect
 
 
-def neighborhood_size(G, v):
-    return len([u for u, v1 in G if v1 == v])
-
-
 def biclique_find(G):
+    """
+    Returns generator object, enumerating all maximal bicliques of G
+
+    This function is preparation for recursion
+
+    :param G: list of tuples, denoting bipartite graph edges
+    :return: generator object
+    """
+
+    # initializing lists
     R = []
     L, P = zip(*G)
     L = list(set(L))
@@ -23,8 +30,25 @@ def biclique_find(G):
     return biclique_find_core(G, L, R, P, NHS, Q)
 
 
+def neighborhood_size(G, v):
+    """
+    This was called "common neighborhood size" in paper
+
+    Didn't understand, what is "common", so just used neighborhood size
+    :param G:
+    :param v:
+    :return:
+    """
+    return len([u for u, v1 in G if v1 == v])
+
+
 def biclique_find_core(G, L, R, P, NHS, Q):
     """
+    Used lists everywhere, not sets
+
+    Appsarently, elemnt uniqueness is guaranteed by algorithm (not sure)
+
+    Additional NHS list holds neighborhood sizes for P
 
     :param G:
     :param L:
@@ -85,6 +109,7 @@ def biclique_find_core(G, L, R, P, NHS, Q):
 
             if len(P1) > 0:
 
+                # recursion is "unwrapped" to return pairs
                 for (L2, R2) in biclique_find_core(G, L1, R1, P1, NHS1, Q1):
                     yield L2, R2
 
