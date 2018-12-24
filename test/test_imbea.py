@@ -1,6 +1,8 @@
 import unittest
+import matplotlib.pyplot as plt
 
 import imbea
+import viz
 
 class TestIMBEA(unittest.TestCase):
 
@@ -35,7 +37,17 @@ class TestIMBEA(unittest.TestCase):
             ('u8', 'v4')
         ]
 
+        plt.figure()
+        viz.plot_biclique(G)
+        plt.show(block=False)
+        pass
+
         for i, (U, V) in enumerate(imbea.biclique_find(G)):
+
+            plt.figure()
+            viz.plot_biclique(G, (U, V))
+            plt.show(block=False)
+
             print('\nLargest biclique #%d:' % i)
             print('U: %s' % str(U))
             print('V: %s' % str(V))
